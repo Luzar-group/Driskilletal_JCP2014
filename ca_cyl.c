@@ -1,5 +1,6 @@
 // Calculate the contact angle of a cylindrical drop oriented along
-// the x axis by using the circular fit by Taubin.
+// the x axis by using the circular fit by Taubin.G. 
+// G.Taubin, IEEE Trans. Pattern Anal. Mach. Intell. 13, 1115 (1991).
 //
 // Ver. 0.4 - 20/09/2013
 
