@@ -1,0 +1,58 @@
+echo log
+log debug.log
+
+units         real
+
+neighbor      2.0 bin
+neigh_modify  one 50000 page 500000 check yes 
+
+boundary      p p f
+
+atom_style    	full
+bond_style    	harmonic
+angle_style   	harmonic
+dihedral_style	none
+improper_style	none
+
+pair_style    lj/cut/coul/long 15.0
+
+read_data graphene_5A_drop.lmps
+
+pair_modify shift yes mix geometric
+
+kspace_style  pppm 1.0e-5 
+kspace_modify slab 3.0
+
+group graphene type 1
+group drop type 2 3
+
+neigh_modify exclude group graphene graphene
+
+velocity drop create 300.0 84068 dist gaussian mom yes rot yes
+velocity all zero linear
+velocity all zero angular
+velocity graphene set 0.0 0.0 0.0 sum no units box
+
+compute drop_t drop temp
+compute drop_p all pressure drop_t
+
+thermo      100
+thermo_style custom step temp c_drop_t press c_drop_p vol etotal ke pe evdwl ecoul elong spcpu
+
+fix 1 all wall/harmonic zlo EDGE 10.0 0.0 1.0
+fix 2 all wall/harmonic zhi EDGE 10.0 0.0 1.0
+fix 3 drop nvt temp 300.0 300.0 100.0
+fix 4 drop recenter NULL INIT NULL shift all units box
+fix 5 drop shake 1.0e-8 100 0 b 1 a 1
+
+fix_modify 3 temp drop_t
+
+timestep 2.00
+
+dump 1 all atom 500 graphene_noslab_drop_r1.dump
+
+restart 100000 graphene_noslab_drop_r1_rst.*
+
+balance dynamic xyz 20 1.0
+
+run 1500000
